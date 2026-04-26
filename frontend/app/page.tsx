@@ -3,25 +3,33 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
+
 export default function Home() {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [message, setMessage] = useState("");
 
   const submitEmergency = async () => {
-    if (!name || !type) {
-      setMessage("Fill all fields");
-      return;
+    try {
+      if (!name || !type) {
+        setMessage("Fill all fields");
+        return;
+      }
+
+      await axios.post(`${API}/emergencies`, {
+        name,
+        type,
+      });
+
+      setMessage("Emergency Sent Successfully");
+      setName("");
+      setType("");
+    } catch (error) {
+      setMessage("Failed to send emergency");
     }
-
-    await axios.post("http://localhost:5000/emergency", {
-      name,
-      type,
-    });
-
-    setMessage("Emergency Sent Successfully");
-    setName("");
-    setType("");
   };
 
   return (
@@ -40,30 +48,18 @@ export default function Home() {
 
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-zinc-800 p-3 rounded-xl text-center">
-            <p className="text-red-400 text-xl font-bold">
-              24/7
-            </p>
-            <p className="text-xs text-zinc-400">
-              Response
-            </p>
+            <p className="text-red-400 text-xl font-bold">24/7</p>
+            <p className="text-xs text-zinc-400">Response</p>
           </div>
 
           <div className="bg-zinc-800 p-3 rounded-xl text-center">
-            <p className="text-green-400 text-xl font-bold">
-              LIVE
-            </p>
-            <p className="text-xs text-zinc-400">
-              Tracking
-            </p>
+            <p className="text-green-400 text-xl font-bold">LIVE</p>
+            <p className="text-xs text-zinc-400">Tracking</p>
           </div>
 
           <div className="bg-zinc-800 p-3 rounded-xl text-center">
-            <p className="text-blue-400 text-xl font-bold">
-              FAST
-            </p>
-            <p className="text-xs text-zinc-400">
-              Dispatch
-            </p>
+            <p className="text-blue-400 text-xl font-bold">FAST</p>
+            <p className="text-xs text-zinc-400">Dispatch</p>
           </div>
         </div>
 
@@ -71,33 +67,19 @@ export default function Home() {
           className="w-full p-3 rounded-xl bg-zinc-800 mb-4 outline-none"
           placeholder="Your Name"
           value={name}
-          onChange={(e) =>
-            setName(e.target.value)
-          }
+          onChange={(e) => setName(e.target.value)}
         />
 
         <select
           className="w-full p-3 rounded-xl bg-zinc-800 mb-4 outline-none"
           value={type}
-          onChange={(e) =>
-            setType(e.target.value)
-          }
+          onChange={(e) => setType(e.target.value)}
         >
-          <option value="">
-            Select Emergency Type
-          </option>
-          <option value="Accident">
-            Accident
-          </option>
-          <option value="Heart Attack">
-            Heart Attack
-          </option>
-          <option value="Fire Injury">
-            Fire Injury
-          </option>
-          <option value="Critical Care">
-            Critical Care
-          </option>
+          <option value="">Select Emergency Type</option>
+          <option value="Accident">Accident</option>
+          <option value="Heart Attack">Heart Attack</option>
+          <option value="Fire Injury">Fire Injury</option>
+          <option value="Critical Care">Critical Care</option>
         </select>
 
         <button

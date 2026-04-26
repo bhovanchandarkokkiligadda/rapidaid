@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import axios from "axios";
 
-const socket = io("http://localhost:5000");
+const API =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000";
+
+const socket = io(API);
 
 type EmergencyItem = {
   id: number;
@@ -53,7 +57,7 @@ export default function DriverPage() {
   const loadData = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/emergencies"
+        `${API}/emergencies`
       );
       setItems(res.data);
     } catch (error) {
@@ -61,11 +65,24 @@ export default function DriverPage() {
     }
   };
 
-  const updateStatus = (
+  const updateStatus = async (
     id: number,
     status: string
   ) => {
-    socket.emit("updateStatus", { id, status });
+    try {
+      await axios.put(
+        `${API}/emergencies/${id}`,
+        { status }
+      );
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status } : item
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const logout = () => {
